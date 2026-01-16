@@ -38,6 +38,14 @@ const findUserByName = (name) => {
   );
 };
 
+const findUserByIdJob = (id, job) => {
+  return users["users_list"].filter(
+    (user) => user.job === job
+  ).filter(
+    (user) => user.id === id
+  );
+};
+
 const findUserById = (id) => 
   users["users_list"].find((user) => user["id"] === id);
 
@@ -46,21 +54,50 @@ const addUser = (user) => {
   return user;
 };
 
+const deleteUserById = (id) => {
+  let user = findUserById(id);
+  console.log(user);
+  if (user !== undefined) {
+    delete users.users_list[users.users_list.indexOf(user)];
+  }
+}
+
+app.delete("/users", (req, res) => {
+  const userToDelete = req.body
+  deleteUserById(userToDelete.id);
+  res.send(users);
+});
+
 app.post("/users", (req, res) => {
   const userToAdd = req.body
   addUser(userToAdd);
-  res.send();
+  res.send(users);
+});
+
+app.get("/users/:id/:job", (req, res) => {
+  const id = req.params["id"];
+  const job = req.params["job"];
+  console.log("checking for: " + id + " and " + job);
+  let result = findUserByIdJob(id, job);
+  if(result === undefined) {
+    res.status(404).send("Resource not found.");
+  } else {
+    res.send(result);
+  }
 });
 
 app.get("/users/:id", (req, res) => {
   const id = req.params["id"];
   let result = findUserById(id);
+  console.log("checking for: " + id);
   if (result === undefined) {
     res.status(404).send("Resource not found.");
   } else {
     res.send(result);
   }
 });
+
+
 
 app.get("/users", (req, res) => {
   const name = req.query.name;
