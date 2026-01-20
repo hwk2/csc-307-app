@@ -1,8 +1,8 @@
 in root directory:  
 run npm install  
-run npm run dev  
+run npm run start  
   
-Directions for branch 'backend'  
+Directions for branch 'backend' (now main but to check backend.) 
 in root:  
 run npm install  
 run npm install -w express-backend express  
