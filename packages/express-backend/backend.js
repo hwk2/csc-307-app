@@ -38,12 +38,10 @@ const findUserByName = (name) => {
   );
 };
 
-const findUserByIdJob = (id, job) => {
+const findUserByNameJob = (name, job) => {
   return users["users_list"].filter(
-    (user) => user.job === job
-  ).filter(
-    (user) => user.id === id
-  );
+    (user) => user.name === name && user.job === job
+  )
 };
 
 const findUserById = (id) => 
@@ -56,9 +54,11 @@ const addUser = (user) => {
 
 const deleteUserById = (id) => {
   let user = findUserById(id);
-  console.log(user);
   if (user !== undefined) {
+    console.log("removing " + user);
     delete users.users_list[users.users_list.indexOf(user)];
+  } else {
+    console.log("user not found");
   }
 }
 
@@ -74,18 +74,19 @@ app.post("/users", (req, res) => {
   res.send(users);
 });
 
-app.get("/users/:id/:job", (req, res) => {
-  const id = req.params["id"];
+/* app.get("/users/:name/:job", (req, res) => {
+  const name = req.params["name"];
   const job = req.params["job"];
-  console.log("checking for: " + id + " and " + job);
-  let result = findUserByIdJob(id, job);
+  console.log("checking for: " + name + " and " + job);
+  let result = findUserByNameJob(name, job);
   if(result === undefined) {
     res.status(404).send("Resource not found.");
   } else {
     res.send(result);
   }
-});
+}); */
 
+// in the future will use query instead of params for filtering. However, this was in the assignment instructions.
 app.get("/users/:id", (req, res) => {
   const id = req.params["id"];
   let result = findUserById(id);
@@ -97,17 +98,43 @@ app.get("/users/:id", (req, res) => {
   }
 });
 
-
-
 app.get("/users", (req, res) => {
   const name = req.query.name;
+  const job = req.query.job;
+
+  console.log("checking for: " + name + " and " + job);
+
+  let result = undefined;
+
+  switch (name, job) {
+    case name === undefined:
+      res.send(users);
+      return;
+    case job === undefined:
+      result = findUserByName(name);
+      result = { users_list: result };
+      res.send(result);
+      return;
+    default:
+      result = findUserByNameJob(name, job);
+      result = { users_list: result };
+      res.send(result);
+      return;
+  }
+  /*
   if(name != undefined) {
+    if(job != undefined) {
+      let result = findUserByNameJob(name, job);
+      result = { users_list: result };
+      res.send(result);
+      return;
+    }
     let result = findUserByName(name);
     result = { users_list: result };
     res.send(result);
   } else {
     res.send(users);
-  }
+  }*/
 });
 
 app.get("/", (req, res) => {
