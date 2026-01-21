@@ -55,8 +55,8 @@ const addUser = (user) => {
 const deleteUserById = (id) => {
   let user = findUserById(id);
   if (user !== undefined) {
-    console.log("removing " + user);
-    delete users.users_list[users.users_list.indexOf(user)];
+    console.log("removing " + user.id);
+    users.users_list.splice(users.users_list.indexOf(user), 1);
   } else {
     console.log("user not found");
   }
@@ -106,22 +106,6 @@ app.get("/users", (req, res) => {
 
   let result = undefined;
 
-  switch (name, job) {
-    case name === undefined:
-      res.send(users);
-      return;
-    case job === undefined:
-      result = findUserByName(name);
-      result = { users_list: result };
-      res.send(result);
-      return;
-    default:
-      result = findUserByNameJob(name, job);
-      result = { users_list: result };
-      res.send(result);
-      return;
-  }
-  /*
   if(name != undefined) {
     if(job != undefined) {
       let result = findUserByNameJob(name, job);
@@ -134,7 +118,7 @@ app.get("/users", (req, res) => {
     res.send(result);
   } else {
     res.send(users);
-  }*/
+  }
 });
 
 app.get("/", (req, res) => {
