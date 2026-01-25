@@ -1,4 +1,7 @@
 import express from "express";
+import cors from "cors"
+
+
 const app = express();
 const port = 8000;
 const users = {
@@ -30,7 +33,28 @@ const users = {
     }
   ]
 };
+
+app.use(cors());
 app.use(express.json());
+
+const generateId = () => {
+  let rtn = Math.random().toString().substring(2, 7);
+  let nobrk = true;
+  while(nobrk) {
+    nobrk = false;
+    for (let i = 0; i < users["users_list"].length; i++) {
+      if (users["users_list"][i]["id"] === rtn) {
+        rtn = Math.random().toString().substring(2, 7);
+        console.log("collision detected, new id: " + rtn);
+        nobrk = true;
+        //JUST BEAK OUT OF FOR LOOP?????
+        break;
+      }
+    }
+  console.log(rtn);
+  return rtn;
+  }
+};
 
 const findUserByName = (name) => {
   return users["users_list"].filter(
@@ -48,8 +72,8 @@ const findUserById = (id) =>
   users["users_list"].find((user) => user["id"] === id);
 
 const addUser = (user) => {
-  users["users_list"].push(user);
-  return user;
+  return users["users_list"].push(user);
+  //return user;
 };
 
 const deleteUserById = (id) => {
@@ -68,10 +92,28 @@ app.delete("/users", (req, res) => {
   res.send(users);
 });
 
+
+/*
+DOES THIS WORK CORRECTLY???? HOW SHOULD FRONT END INTERPRET THIS???
+DOES THIS WORK CORRECTLY???? HOW SHOULD FRONT END INTERPRET THIS???
+DOES THIS WORK CORRECTLY???? HOW SHOULD FRONT END INTERPRET THIS???
+DOES THIS WORK CORRECTLY???? HOW SHOULD FRONT END INTERPRET THIS???
+*/
+
 app.post("/users", (req, res) => {
   const userToAdd = req.body
+  userToAdd.id = generateId();
+  let currLength = users["users_list"].length;
   addUser(userToAdd);
-  res.send(users);
+  if(users["users_list"].length === currLength) {
+    res.status(500).send("User not added.");
+    console.log("User not added: " + userToAdd.id, userToAdd.name, userToAdd.job, + "." + res.statusCode.toString());
+    return;
+  } else {
+    res.status(201).send(users);
+    console.log("User added: " + userToAdd.id, userToAdd.name, userToAdd.job, + "." + res.statusCode.toString());
+    return;
+  }
 });
 
 /* app.get("/users/:name/:job", (req, res) => {
