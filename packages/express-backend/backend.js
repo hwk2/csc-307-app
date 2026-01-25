@@ -73,7 +73,6 @@ const findUserById = (id) =>
 
 const addUser = (user) => {
   return users["users_list"].push(user);
-  //return user;
 };
 
 const deleteUserById = (id) => {
@@ -110,7 +109,7 @@ app.post("/users", (req, res) => {
     console.log("User not added: " + userToAdd.id, userToAdd.name, userToAdd.job, + "." + res.statusCode.toString());
     return;
   } else {
-    res.status(201).send(users);
+    res.status(201).send(userToAdd);
     console.log("User added: " + userToAdd.id, userToAdd.name, userToAdd.job, + "." + res.statusCode.toString());
     return;
   }
