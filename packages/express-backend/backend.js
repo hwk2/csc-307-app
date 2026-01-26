@@ -39,7 +39,8 @@ app.use(express.json());
 
 const generateId = () => {
   let rtn = Math.random().toString().substring(2, 7);
-  let nobrk = true;
+  //check for collisions, not necessary for assignment (also not a very good method to be honest)
+  /*let nobrk = true;
   while(nobrk) {
     nobrk = false;
     for (let i = 0; i < users["users_list"].length; i++) {
@@ -51,9 +52,9 @@ const generateId = () => {
         break;
       }
     }
+  }*/
   console.log(rtn);
   return rtn;
-  }
 };
 
 const findUserByName = (name) => {
@@ -80,24 +81,18 @@ const deleteUserById = (id) => {
   if (user !== undefined) {
     console.log("removing " + user.id);
     users.users_list.splice(users.users_list.indexOf(user), 1);
+    return 204;
   } else {
     console.log("user not found");
+    return 404;
   }
 }
 
-app.delete("/users", (req, res) => {
-  const userToDelete = req.body
-  deleteUserById(userToDelete.id);
-  res.send(users);
+app.delete("/users/:id", (req, res) => {
+  const idToDelete = req.params["id"];
+  let statusCode = deleteUserById(idToDelete);
+  res.status(statusCode).send();
 });
-
-
-/*
-DOES THIS WORK CORRECTLY???? HOW SHOULD FRONT END INTERPRET THIS???
-DOES THIS WORK CORRECTLY???? HOW SHOULD FRONT END INTERPRET THIS???
-DOES THIS WORK CORRECTLY???? HOW SHOULD FRONT END INTERPRET THIS???
-DOES THIS WORK CORRECTLY???? HOW SHOULD FRONT END INTERPRET THIS???
-*/
 
 app.post("/users", (req, res) => {
   const userToAdd = req.body
@@ -106,11 +101,11 @@ app.post("/users", (req, res) => {
   addUser(userToAdd);
   if(users["users_list"].length === currLength) {
     res.status(500).send("User not added.");
-    console.log("User not added: " + userToAdd.id, userToAdd.name, userToAdd.job, + "." + res.statusCode.toString());
+    //console.log("User not added: " + userToAdd.id, userToAdd.name, userToAdd.job, + "." + res.statusCode.toString());
     return;
   } else {
     res.status(201).send(userToAdd);
-    console.log("User added: " + userToAdd.id, userToAdd.name, userToAdd.job, + "." + res.statusCode.toString());
+    //console.log("User added: " + userToAdd.id, userToAdd.name, userToAdd.job, + "." + res.statusCode.toString());
     return;
   }
 });
@@ -143,7 +138,7 @@ app.get("/users", (req, res) => {
   const name = req.query.name;
   const job = req.query.job;
 
-  console.log("checking for: " + name + " and " + job);
+  //console.log("checking for: " + name + " and " + job);
 
   let result = undefined;
 
