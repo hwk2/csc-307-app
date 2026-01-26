@@ -62,10 +62,10 @@ const deleteUserById = (id) => {
   }
 }
 
-app.delete("/users", (req, res) => {
-  const userToDelete = req.body
-  deleteUserById(userToDelete.id);
-  res.send(users);
+app.delete("/users/:id", (req, res) => {
+  const idtoDelete = req.params["id"]
+  deleteUserById(idtoDelete);
+  res.send();
 });
 
 app.post("/users", (req, res) => {
