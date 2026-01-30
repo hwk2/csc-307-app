@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors"
+import User from "./models/user.js";
+import userService from "./services/user-service.js";
 
 
 const app = express();
@@ -56,28 +58,23 @@ const generateId = () => {
   console.log(rtn);
   return rtn;
 };
-
+/*
 const findUserByName = (name) => {
   return users["users_list"].filter(
     (user) => user.name === name
   );
 };
-
 const findUserByNameJob = (name, job) => {
   return users["users_list"].filter(
     (user) => user.name === name && user.job === job
   )
 };
-
 const findUserById = (id) => 
   users["users_list"].find((user) => user["id"] === id);
-
 const addUser = (user) => {
   return users["users_list"].push(user);
 };
-
 const deleteUserById = (id) => {
-  let user = findUserById(id);
   if (user !== undefined) {
     console.log("removing " + user.id);
     users.users_list.splice(users.users_list.indexOf(user), 1);
@@ -86,75 +83,54 @@ const deleteUserById = (id) => {
     console.log("user not found");
     return 404;
   }
-}
+};
+*/
 
 app.delete("/users/:id", (req, res) => {
   const idToDelete = req.params["id"];
-  let statusCode = deleteUserById(idToDelete);
-  res.status(statusCode).send();
+  userService.findIdAndDelete(idToDelete).then(() => {
+    res.status(204).send();
+    return;
+  }).catch((error) => {
+    res.status(500).send(error);
+    return;
+  });
 });
 
 app.post("/users", (req, res) => {
   const userToAdd = req.body
   userToAdd.id = generateId();
-  let currLength = users["users_list"].length;
-  addUser(userToAdd);
-  if(users["users_list"].length === currLength) {
-    res.status(500).send("User not added.");
-    //console.log("User not added: " + userToAdd.id, userToAdd.name, userToAdd.job, + "." + res.statusCode.toString());
-    return;
-  } else {
+  userService.addUser(userToAdd).then(() => {
     res.status(201).send(userToAdd);
-    //console.log("User added: " + userToAdd.id, userToAdd.name, userToAdd.job, + "." + res.statusCode.toString());
     return;
-  }
+  }).catch((error) => {
+    res.status(500).send(error);
+    return;
+  });
 });
-
-/* app.get("/users/:name/:job", (req, res) => {
-  const name = req.params["name"];
-  const job = req.params["job"];
-  console.log("checking for: " + name + " and " + job);
-  let result = findUserByNameJob(name, job);
-  if(result === undefined) {
-    res.status(404).send("Resource not found.");
-  } else {
-    res.send(result);
-  }
-}); */
 
 // in the future will use query instead of params for filtering. However, this was in the assignment instructions.
 app.get("/users/:id", (req, res) => {
   const id = req.params["id"];
-  let result = findUserById(id);
-  console.log("checking for: " + id);
-  if (result === undefined) {
-    res.status(404).send("Resource not found.");
-  } else {
-    res.send(result);
-  }
+  userService.findUserById(id).then((user) => {
+    res.status(200).send(user);
+    return;
+  }).catch((error) => {
+    res.status(404).send("Resource not found." + error);
+    return;
+  })
 });
 
 app.get("/users", (req, res) => {
   const name = req.query.name;
   const job = req.query.job;
 
-  //console.log("checking for: " + name + " and " + job);
-
-  let result = undefined;
-
-  if(name != undefined) {
-    if(job != undefined) {
-      let result = findUserByNameJob(name, job);
-      result = { users_list: result };
-      res.send(result);
-      return;
-    }
-    let result = findUserByName(name);
-    result = { users_list: result };
-    res.send(result);
-  } else {
-    res.send(users);
-  }
+  userService.getUsers(name,job).then((users) => {
+    res.status(200).send({ users_list: users });
+  }).catch((error) => {
+    res.status(500).send(error);
+  });
+  return;
 });
 
 app.get("/", (req, res) => {
