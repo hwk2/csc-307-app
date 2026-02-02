@@ -1,8 +1,17 @@
 import express from "express";
-import cors from "cors"
-import User from "./models/user.js";
+import cors from "cors";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
 import userService from "./services/user-service.js";
 
+dotenv.config();
+
+const { MONGO_CONNECTION_STRING } = process.env;
+
+mongoose.set("debug", true);
+mongoose
+  .connect(MONGO_CONNECTION_STRING + "users")
+  .catch((error) => console.log(error));
 
 const app = express();
 const port = 8000;
@@ -88,7 +97,7 @@ const deleteUserById = (id) => {
 
 app.delete("/users/:id", (req, res) => {
   const idToDelete = req.params["id"];
-  userService.findIdAndDelete(idToDelete).then(() => {
+  mongoose.findByIdAndDelete(idToDelete).then(() => {
     res.status(204).send();
     return;
   }).catch((error) => {
