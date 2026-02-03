@@ -19,7 +19,7 @@ function TableBody(props) {
 		//always use keys when using lists in react
 		return (
 			<tr key = {index}>
-				<td>{row.id}</td>
+				<td>{row._id}</td>
 				<td>{row.name}</td>
 				<td>{row.job}</td>
 				<td>
